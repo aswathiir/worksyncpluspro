@@ -103,7 +103,7 @@ class RegisterView(APIView):
 
     def post(self, request):
         """
-        Creates new user account. New users are inactive by default and require account confirmation.
+        Creates new user account. Users are automatically activated and can login immediately.
         """
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
@@ -119,8 +119,7 @@ class RegisterView(APIView):
         serializer.save()
         return Response({
             'detail':
-                'We have sent you an email to activate your account. '
-                'Follow the steps in the email to finish the registration.'
+                'Account created successfully! You can now login with your credentials.'
         }, status.HTTP_201_CREATED)
 
 

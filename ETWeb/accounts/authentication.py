@@ -84,10 +84,8 @@ class TokenAuthMiddleware:
     def __init__(self, inner):
         self.inner = inner
 
-    def __call__(self, scope):
+    async def __call__(self, scope, receive, send):
         headers = dict(scope['headers'])
-        # print(scope['cookies'])
-        # print('\n'.join(map(str, list(zip(list(headers.keys()), headers.values())))))
 
         token_key = ''
         if b'authorization' in headers:
@@ -108,9 +106,9 @@ class TokenAuthMiddleware:
                 # auth token cookie not set
                 pass
 
-        scope['user'] = self.get_user(token_key)
+        scope['user'] = await self.get_user(token_key)
 
-        return self.inner(scope)
+        return await self.inner(scope, receive, send)
 
     @database_sync_to_async
     def get_user(self, key):

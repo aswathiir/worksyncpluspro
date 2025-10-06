@@ -1,5 +1,4 @@
 import os
-import django_heroku
 import dj_database_url
 import environ
 
@@ -20,10 +19,11 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['track-your-employees.herokuapp.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['track-your-employees.herokuapp.com', '127.0.0.1', 'localhost', '0.0.0.0', 'db.hlakyczavlrswrqweyed.supabase.co']
 
 # Application definition
 INSTALLED_APPS = [
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'accounts',
     'employees',
     'projects',
-    'frontend'
+    'frontend',
+    'collaboration',
 ]
 
 MIDDLEWARE = [
@@ -73,10 +74,7 @@ ASGI_APPLICATION = "ETWeb.routing.channel_routing"
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [env('REDIS_URL', default='redis://localhost:6379')],
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
     },
 }
 
@@ -164,15 +162,21 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # App Common Information
 SITE_SHORT_NAME = 'track-your-employees'
 APP_EMAIL_FROM = env('EMAIL_HOST_USER')
-BASE_URL = 'track-your-employees.herokuapp.com'
+BASE_URL = 'localhost:8000'
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = 587
+# Email settings - Using console backend for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+# EMAIL_PORT = 587
 
 
-django_heroku.settings(locals(), databases=False, allowed_hosts=False, secret_key=False)
+# Supabase Configuration
+SUPABASE_URL = env('SUPABASE_URL', default='')
+SUPABASE_KEY = env('SUPABASE_KEY', default='')
+SUPABASE_SERVICE_KEY = env('SUPABASE_SERVICE_KEY', default='')
+
+# django_heroku.settings(locals(), databases=False, allowed_hosts=False, secret_key=False)

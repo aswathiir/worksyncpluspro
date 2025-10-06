@@ -1,7 +1,7 @@
 QT += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets websockets concurrent
-
+QMAKE_MSC_VER = 1929
 TARGET = ETClient
 TEMPLATE = app
 
@@ -14,6 +14,9 @@ DEPENDENCY_DIR = ../ETClient/Dependencies/
 BUILD_VERSION = x86
 BUILD_MODE = Release
 
+
+# Suppress STL deprecation noise on MSVC for stdext iterators
+QMAKE_CXXFLAGS += -D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING
 
 LIBS += -lWs2_32 -lIPHLPAPI -lUser32
 LIBS += -L"$${DEPENDENCY_DIR}/lib/$${BUILD_VERSION}/" -lwpcap \

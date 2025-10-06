@@ -121,16 +121,35 @@ class AddMembersSerializer(serializers.Serializer):
         """
         manager = self.context['request'].user
         project = self.instance
+
         for member in self.validated_data['new_members']:
-            # if an invitation for the particular user already exists, it's timestamp will be updated
-            defaults = {
-                'timestamp': timezone.now()
-            }
-            token, created = ProjectInvitationToken.objects.update_or_create(project=project,
-                                                                             manager=manager,
-                                                                             new_member=member,
-                                                                             defaults=defaults)
-            token.save()
+            # Immediately add member to the project
+            project.members.add(member)
+
+            # Mark any existing invitation tokens as accepted for bookkeeping
+            ProjectInvitationToken.objects.filter(
+                project=project,
+                manager=manager,
+                new_member=member
+            ).update(accepted=True, timestamp=timezone.now())
+
+            # Notify the member they were added
+            from collaboration.models import Notification
+            Notification.objects.update_or_create(
+                recipient=member,
+                notification_type='system',
+                project=project,
+                defaults={
+                    'title': f'Added to project: {project.name}',
+                    'message': f'You were added to "{project.name}" by {manager.username}.',
+                    'data': {
+                        'project_id': project.id,
+                        'project_name': project.name,
+                        'manager': manager.username
+                    },
+                    'is_read': False
+                }
+            )
 
         return self.instance
 

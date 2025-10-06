@@ -86,7 +86,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=self.validated_data['email'],
             password=self.validated_data['password'],
             is_staff=self.validated_data['is_staff'],
-            is_active=False
+            is_active=True  # Auto-activate users immediately
         )
 
     class Meta:

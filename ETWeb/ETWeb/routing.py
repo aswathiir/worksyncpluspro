@@ -8,9 +8,9 @@ channel_routing = ProtocolTypeRouter({
     "websocket": TokenAuthMiddlewareStack(
             URLRouter([
                 # consumer for employee users
-                path("client/", AsyncClientConnectionsConsumer),
+                path("client/", AsyncClientConnectionsConsumer.as_asgi()),
                 # consumer for manager users
-                path("master/", AsyncManagerConnectionsConsumer)
+                path("master/", AsyncManagerConnectionsConsumer.as_asgi())
             ])
         )
 })

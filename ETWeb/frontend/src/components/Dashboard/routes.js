@@ -34,6 +34,12 @@ const DashboardRouter = props => {
             <Route exact path={`${match.url}/account`}>
                 <Dashboard.Account user={user}/>
             </Route>
+            <Route exact path={`${match.url}/notifications`}>
+                <Dashboard.Notifications user={user}/>
+            </Route>
+            <Route exact path={`${match.url}/settings`}>
+                <Dashboard.Account user={user} />
+            </Route>
             {props.user.is_staff && (
                     <Switch>
                         <Route exact path={`${match.url}/projects`}>

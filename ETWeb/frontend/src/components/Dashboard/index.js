@@ -6,6 +6,7 @@ import Profile from './user/Profile';
 import UserActivityLogs from './user/UserActivityLogs';
 import MyProjects from './project/MyProjects';
 import ProjectDetail from './project/ProjectDetail';
+import Notifications from './notifications/Notifications';
 
 export default Dashboard;
 export {
@@ -18,4 +19,5 @@ export {
     UserActivityLogs,
     MyProjects,
     ProjectDetail,
+    Notifications,
 }

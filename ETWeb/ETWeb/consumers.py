@@ -18,20 +18,12 @@ class AsyncUserConnectionsConsumer(AsyncJsonWebsocketConsumer):
     groups = ['broadcast']
     user = None
 
-    @database_sync_to_async
-    def add_user_to_groups(self):
-        raise NotImplementedError('add_user_to_groups() method should be implemented in descendant classes')
-
-    @database_sync_to_async
-    def remove_user_from_groups(self):
-        raise NotImplementedError('remove_user_from_groups() method should be implemented in descendant classes')
-
     async def connect(self):
         """
         Function called on every attempt to establish websocket connection.
         """
         print('New connection')
-        self.user = await self.scope['user']
+        self.user = self.scope['user']
         await self.accept()
 
         if not self.user or not self.user.is_authenticated:
@@ -41,17 +33,60 @@ class AsyncUserConnectionsConsumer(AsyncJsonWebsocketConsumer):
                 'error': 'User does not exist or account has not been activated.'
             })
             await self.close(3401)
-            return False
+            return
 
         print('Connection accepted')
-        return True
 
     async def disconnect(self, close_code):
         """
         Function called when socket closes connection.
         """
-        await self.remove_user_from_groups()
-        print('Removed user from groups\nDisconnected')
+        print('Disconnected')
+
+    @database_sync_to_async
+    def add_user_to_groups(self):
+        raise NotImplementedError('add_user_to_groups() method should be implemented in descendant classes')
+
+    @database_sync_to_async
+    def remove_user_from_groups(self):
+        raise NotImplementedError('remove_user_from_groups() method should be implemented in descendant classes')
+
+
+class DataCollectionMixin:
+    """
+    Class containing functions for saving collected data.
+    """
+    user = None
+
+    @staticmethod
+    def get_random_string(length):
+        return ''.join(choice(ascii_letters) for _ in range(length))
+
+    @database_sync_to_async
+    def save_screenshot(self, encoded_image):
+        new_screenshot = ScreenshotActivity()
+        new_screenshot.employee = self.user
+        new_screenshot.image.save(f'{self.user}_screenshot_{self.get_random_string(10)}.jpg',
+                                  ContentFile(BytesIO(base64.decodebytes(encoded_image)).read()))
+        new_screenshot.save()
+
+    @database_sync_to_async
+    def save_network_activities(self, data):
+        def create_network_objs(employee, stats, protocol, res):
+            for host_count_dict in stats['hostnames']:
+                host, count = next(iter(host_count_dict.items()))
+                res.append(
+                    NetworkActivity(host_name=host, message_count=count, protocol_type=protocol,
+                                    employee=employee)
+                )
+
+        network_objs = []
+        create_network_objs(self.user, data['http']['request_stats'], NetworkActivity.HTTP, network_objs)
+        create_network_objs(self.user, data['ssl']['client_hello_stats'], NetworkActivity.SSL, network_objs)
+
+        NetworkActivity.objects.bulk_create(network_objs)
+        print('Saved network objects')
+        print('Total length {}'.format(len(network_objs)))
 
 
 class DataCollectionMixin:
@@ -111,20 +146,18 @@ class AsyncClientConnectionsConsumer(AsyncUserConnectionsConsumer, DataCollectio
             'status': self.status,
         })
 
-    @database_sync_to_async
-    def set_status(self, value):
+    async def set_status(self, value):
         """
-        Function called on evert connection status change of an employee.
+        Function called on every connection status change of an employee.
         """
         if value not in self.STATUS_VALUES:
             raise ValueError(f'invalid value for parameter value {repr(value)}')
 
         self.status = value
-        for to in self.status_change_subscribers:
-            async_to_sync(self.user_status_report)({'report_to': to})
+        for subscriber_group in self.status_change_subscribers:
+            await self.user_status_report({'report_to': subscriber_group})
 
-    @database_sync_to_async
-    def set_status_change_subscribers(self):
+    async def set_status_change_subscribers(self):
         """
         Find all staff users of the projects that an employee is a member of to notify them about events.
         """
@@ -135,33 +168,31 @@ class AsyncClientConnectionsConsumer(AsyncUserConnectionsConsumer, DataCollectio
             staff = project.members.filter(is_staff=True)
             self.status_change_subscribers.update([f'client_user_{u.id}' for u in staff])
 
-    @database_sync_to_async
-    def add_user_to_groups(self):
+    async def add_user_to_groups(self):
         if not self.user:
             raise ValueError('User instance is not set')
 
         # add user to broadcast group
-        async_to_sync(self.channel_layer.group_add)('broadcast', self.channel_name)
+        await self.channel_layer.group_add('broadcast', self.channel_name)
 
         # send message to close all living connections, as the new one is created
-        async_to_sync(self.channel_layer.group_send)(f'client_user_{self.user.id}', {'type': 'disconnect'})
+        await self.channel_layer.group_send(f'client_user_{self.user.id}', {'type': 'disconnect'})
 
         # create user group, so he/she could have online status
-        async_to_sync(self.channel_layer.group_add)(f'client_user_{self.user.id}', self.channel_name)
+        await self.channel_layer.group_add(f'client_user_{self.user.id}', self.channel_name)
 
-    @database_sync_to_async
-    def remove_user_from_groups(self):
+    async def remove_user_from_groups(self):
         if not self.user:
             raise ValueError('User instance is not set')
 
         # remove user from broadcast group
-        async_to_sync(self.channel_layer.group_discard)('broadcast', self.channel_name)
+        await self.channel_layer.group_discard('broadcast', self.channel_name)
 
         # remove user from his group, so he/she could have offline status
-        async_to_sync(self.channel_layer.group_discard)(f'client_user_{self.user.id}', self.channel_name)
+        await self.channel_layer.group_discard(f'client_user_{self.user.id}', self.channel_name)
 
     async def connect(self):
-        connected = await super(AsyncClientConnectionsConsumer, self).connect()
+        connected = await super().connect()
         if not connected:
             return
 
@@ -172,7 +203,7 @@ class AsyncClientConnectionsConsumer(AsyncUserConnectionsConsumer, DataCollectio
                 'error': 'Manager accounts cannot connect via client.'
             })
             await self.close(3403)
-            return False
+            return
 
         await self.add_user_to_groups()
         print('Added user to project groups')
@@ -210,7 +241,7 @@ class AsyncClientConnectionsConsumer(AsyncUserConnectionsConsumer, DataCollectio
 
     async def disconnect(self, close_code):
         try:
-            await super().disconnect(close_code)
+            await self.remove_user_from_groups()
             await self.set_status('offline')
         except:
             pass
@@ -222,27 +253,25 @@ class AsyncManagerConnectionsConsumer(AsyncUserConnectionsConsumer):
     to gather data.
     """
 
-    @database_sync_to_async
-    def add_user_to_groups(self):
+    async def add_user_to_groups(self):
         if not self.user:
             raise ValueError('User instance is not set')
 
         # add user to broadcast group
-        async_to_sync(self.channel_layer.group_add)('broadcast', self.channel_name)
+        await self.channel_layer.group_add('broadcast', self.channel_name)
 
         # create user group
-        async_to_sync(self.channel_layer.group_add)(f'client_user_{self.user.id}', self.channel_name)
+        await self.channel_layer.group_add(f'client_user_{self.user.id}', self.channel_name)
 
-    @database_sync_to_async
-    def remove_user_from_groups(self):
+    async def remove_user_from_groups(self):
         if not self.user:
             raise ValueError('User instance is not set')
 
         # remove user from broadcast group
-        async_to_sync(self.channel_layer.group_discard)('broadcast', self.channel_name)
+        await self.channel_layer.group_discard('broadcast', self.channel_name)
 
         # remove user from his group
-        async_to_sync(self.channel_layer.group_discard)(f'client_user_{self.user.id}', self.channel_name)
+        await self.channel_layer.group_discard(f'client_user_{self.user.id}', self.channel_name)
 
     async def connect(self):
         connected = await super().connect()
@@ -276,12 +305,12 @@ class AsyncManagerConnectionsConsumer(AsyncUserConnectionsConsumer):
             'text': 'message received'
         })
 
-    async def ping_employee(self, id):
+    async def ping_employee(self, user_id):
         """
         Send a message to report his connection status to the employee with provided id.
         """
-        print(f'Sending message to user {id}')
-        await self.channel_layer.group_send(f'client_user_{id}', {
+        print(f'Sending message to user {user_id}')
+        await self.channel_layer.group_send(f'client_user_{user_id}', {
             'type': 'user.status.report',
             'report_to': f'client_user_{self.user.id}',
         })

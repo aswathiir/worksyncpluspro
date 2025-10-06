@@ -15,8 +15,8 @@ const DashboardNavBar = props => {
     }
 
     links.push(
-            {label: "Notifications", href: "/not-found"},
-            {label: "Settings", href: "/not-f"}
+            {label: "Notifications", href: "/notifications"},
+            {label: "Settings", href: "/settings"}
         );
 
     let [activeItem, setActiveItem] = useState(utils.getActiveNavItemIdx(links) || 0);

@@ -9,6 +9,12 @@
     <div id="root"></div>
     {% load static %}
     {% csrf_token %}
+
+    {# Pass Django messages to JavaScript #}
+    {% if messages %}
+    <div id="django-messages" style="display: none;" data-messages="{{ messages|safe }}"></div>
+    {% endif %}
+
     <script type="application/javascript" src="{% static 'frontend/main.js' %}"></script>
 </body>
 </html>
