@@ -1,4 +1,4 @@
-# WorkSync Pulse 📊
+# WorkSync Pulse 
 
 > **Comprehensive Real-time Collaborative Productivity Management System with Integrated AI-Powered Monitoring**
 
@@ -12,21 +12,21 @@ A privacy-first employee monitoring and team collaboration platform that seamles
 
 ---
 
-## 🌟 Features
+## Features
 
-### 🖥️ **Desktop Monitoring Agent**
+### **Desktop Monitoring Agent**
 - **Privacy-Preserving Screenshots**: Automated capture every 10 seconds with configurable blurring
 - **Activity Tracking**: Mouse movements, keyboard interactions, and application focus monitoring
 - **Anti-Cheat Detection**: ML-powered synthetic activity detection (mouse jigglers, auto-clickers)
 - **Real-time Communication**: WebSocket-based telemetry transmission to backend
 
-### 🌐 **Web-based Collaboration Platform**
+### **Web-based Collaboration Platform**
 - **Task Management**: Kanban-style boards with drag-and-drop functionality
 - **Real-time Chat**: Discord-style threaded messaging with emoji reactions
 - **Meeting Integration**: Zoom API integration with recording and transcription
 - **Analytics Dashboard**: Comprehensive productivity insights and team performance metrics
 
-### 🔐 **Privacy & Security**
+### **Privacy & Security**
 - **GDPR Compliant**: Automated data retention and user consent management
 - **Role-Based Access**: Admin, team leader, and employee permission levels
 - **Row-Level Security**: Database-level access control policies
@@ -34,7 +34,7 @@ A privacy-first employee monitoring and team collaboration platform that seamles
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TB
@@ -51,7 +51,7 @@ graph TB
 - **Database**: Supabase PostgreSQL with real-time subscriptions
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.8+
@@ -104,7 +104,7 @@ psql -h your-supabase-host -U postgres -d postgres -f schema.sql
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 worksync-pulse/
@@ -130,7 +130,7 @@ worksync-pulse/
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -165,7 +165,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
 The system uses a comprehensive 15-table schema:
 
@@ -187,7 +187,7 @@ The system uses a comprehensive 15-table schema:
 
 ---
 
-## 🔧 Development
+## Development
 
 ### Running Tests
 ```bash
@@ -227,7 +227,7 @@ make
 
 ---
 
-## 📊 Key Features in Detail
+## Key Features in Detail
 
 ### Privacy-Preserving Monitoring
 - **Configurable Screenshot Intervals**: Default 10 seconds, user-adjustable
@@ -249,7 +249,7 @@ make
 
 ---
 
-## 🔐 Security & Compliance
+## Security & Compliance
 
 ### Data Protection
 - **Encryption**: AES-256 encryption for data at rest and in transit
@@ -265,7 +265,7 @@ make
 
 ---
 
-## 🚀 Deployment
+##  Deployment
 
 ### Docker Deployment
 ```bash
@@ -283,7 +283,7 @@ docker-compose up -d
 
 ---
 
-## 📈 Performance Benchmarks
+##  Performance Benchmarks
 
 | Metric | Performance |
 |--------|-------------|
@@ -296,7 +296,7 @@ docker-compose up -d
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -318,7 +318,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🙋‍♀️ Support
+## Support
 
 ### Getting Help
 - **Issues**: [GitHub Issues](https://github.com/aswathiir/worksyncpluspro/issues)
@@ -327,7 +327,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🎯 Roadmap
+## Roadmap
 
 ### Version 2.0
 - [ ] Mobile application for iOS and Android
@@ -343,7 +343,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📝 Changelog
+## Changelog
 
 ### v1.0.0 (Current)
 - Initial release with core monitoring and collaboration features
@@ -355,7 +355,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🏆 Acknowledgments
+## Acknowledgments
 
 - **Qt Framework** for cross-platform desktop development
 - **Django & Django Channels** for robust web backend
