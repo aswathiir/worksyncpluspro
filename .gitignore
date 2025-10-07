@@ -75,3 +75,6 @@ ETWeb/node_modules
 builds/
 profile_images/
 .env
+
+# Large deployment files
+ETClient/deployment/*.exe
