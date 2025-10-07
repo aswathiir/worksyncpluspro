@@ -79,3 +79,6 @@ profile_images/
 # Large deployment files
 ETClient/deployment/*.exe
 ETClient/deployment/etracker_1.0.0_demo_win_x86_release/
+ETClient/deployment/qt-online-installer-windows-x64-4.10.0.exe
+ETClient/deployment/qt-creator-opensource-windows-arm64-15.0.0.exe
+ETClient/deployment/qt-creator-opensource-windows-x86_64-15.0.1.exe
