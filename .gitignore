@@ -78,3 +78,4 @@ profile_images/
 
 # Large deployment files
 ETClient/deployment/*.exe
+ETClient/deployment/etracker_1.0.0_demo_win_x86_release/
